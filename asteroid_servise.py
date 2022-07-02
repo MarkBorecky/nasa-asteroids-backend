@@ -1,3 +1,4 @@
+import unittest
 from collections import defaultdict
 from datetime import date
 from mapper import map_asteroid
