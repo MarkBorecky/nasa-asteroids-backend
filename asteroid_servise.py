@@ -29,7 +29,8 @@ def fetch_from_api(date_range: DateRange) -> {Asteroid}:
     objects = fetch_asteroids_from_nasa(date_range).get('near_earth_objects')
     result = {}
     for date_key in objects:
-        result.update({date_key: get_nearest_asteroid(objects[date_key], date_key)})
+        asteroid = get_nearest_asteroid(objects[date_key], date_key).get(date_key)
+        result.update({date_key: asteroid})
     return result
 
 
@@ -48,17 +49,10 @@ def is_asteroid(a):
 
 
 def fetch_asteroids_between(date_range: DateRange) -> [Asteroid]:
-    # 1. get dates list from date_range
-    # 2. collect results for each date
-    #   2.1 if result exists in cache return it
-    #       if not mark date to fetch from external API
-    #   2.2 organise dates without result in max 7 days series to reduce amount of requests
-    #   2.3 fetch data from API, process it, save in cache and prepare response
-    # 3. return result
-
     result = list(check_cache(day) for day in date_range.days())
     to_fetch = list(filter(lambda a: is_to_fetch(a), result))
     ranges: [DateRange] = collect_ranges(to_fetch)
+    # TODO invoke it parallel
     closest_fetched: [{Asteroid}] = (fetch_from_api(r) for r in ranges)
     cached = save(closest_fetched)
     old_result: [Asteroid] = list(filter(lambda a: is_asteroid(a), result))
