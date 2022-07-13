@@ -20,6 +20,9 @@ class DateRange(BaseModel):
     def days(self):
         return [dt for dt in rrule(DAILY, dtstart=self.start, until=self.end)]
 
+    def formatted_days(self):
+        return [str(dt)[:10] for dt in rrule(DAILY, dtstart=self.start, until=self.end)]
+
     def is_empty(self) -> bool:
         return False
 
